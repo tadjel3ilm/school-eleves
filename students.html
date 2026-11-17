@@ -1,0 +1,367 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل وقوائم التلاميذ - مدرسة الدعم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #0b0f19; color: #f3f4f6; }
+        .glass-card { background: rgba(17, 24, 39, 0.78); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-input { background: rgba(31, 41, 55, 0.65); border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; }
+        .glass-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+        .big-card { transition: all 0.3s ease; cursor: pointer; }
+        .big-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.4); }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <!-- قفل كلمة المرور -->
+    <div id="loginScreen" class="fixed inset-0 bg-[#0b0f19] z-50 flex items-center justify-center p-4">
+        <div class="glass-card p-8 rounded-3xl max-w-md w-full text-center space-y-6 shadow-2xl">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-3xl">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h2 class="text-2xl font-black text-white">سجل التلاميذ</h2>
+            <p class="text-sm text-slate-400">أدخل كلمة المرور للوصول إلى القوائم</p>
+            <input type="password" id="adminPassword" placeholder="كلمة المرور..." class="glass-input w-full p-4 rounded-2xl text-center text-lg">
+            <button onclick="checkPassword()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 font-bold p-4 rounded-2xl text-white shadow-lg transition">
+                فتح السجل
+            </button>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div id="mainApp" class="max-w-7xl mx-auto space-y-8 hidden">
+        
+        <!-- الهيدر وشريط البحث الشامل السريع -->
+        <header class="glass-card p-6 rounded-3xl space-y-6 shadow-2xl">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-2xl shadow-lg">📚</div>
+                    <div>
+                        <h1 class="text-2xl font-black text-white">سجل التلاميذ المنظم</h1>
+                        <p id="breadcrumb" class="text-sm text-blue-400 font-semibold">الرئيسية / اختر المرحلة التعليمية</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="resetNavigation()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-bold text-slate-200 transition">
+                        <i class="fa-solid fa-home ml-1"></i> العودة للبداية
+                    </button>
+                </div>
+            </div>
+
+            <!-- خانة البحث السريع الشاملة (بالاسم أو اللقب أو الكود الخاص) -->
+            <div class="relative">
+                <i class="fa-solid fa-search absolute right-4 top-4 text-blue-400"></i>
+                <input type="text" id="globalSearchInput" onkeyup="globalSearch()" placeholder="بحث سريع في كل المدرسة: اكتب اسم التلميذ، لقبه، أو رقمه الخاص (ST-XXXX)..." class="glass-input w-full pr-12 pl-4 py-3.5 rounded-2xl text-sm">
+            </div>
+        </header>
+
+        <!-- 1. الخانتان الكبيرتان (متوسط / ثانوي) -->
+        <section id="stepLevel" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div onclick="selectLevel('متوسط')" class="glass-card big-card p-12 rounded-3xl text-center space-y-4 border-2 border-transparent">
+                <div class="w-24 h-24 mx-auto rounded-3xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-5xl">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                </div>
+                <h2 class="text-3xl font-black text-white">التعليم المتوسط</h2>
+                <p class="text-slate-400">تصفح السنوات والأفواج وقوائم الدفع للتعليم المتوسط</p>
+            </div>
+
+            <div onclick="selectLevel('ثانوي')" class="glass-card big-card p-12 rounded-3xl text-center space-y-4 border-2 border-transparent">
+                <div class="w-24 h-24 mx-auto rounded-3xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-5xl">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h2 class="text-3xl font-black text-white">التعليم الثانوي</h2>
+                <p class="text-slate-400">تصفح الشعب، السنوات، والأفواج للتعليم الثانوي</p>
+            </div>
+        </section>
+
+        <!-- 2. الشعب -->
+        <section id="stepBranch" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-white">اختر الشعبة:</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="branchesContainer"></div>
+        </section>
+
+        <!-- 3. السنوات -->
+        <section id="stepYear" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-white">اختر السنة الدراسية:</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="yearsContainer"></div>
+        </section>
+
+        <!-- 4. الأفواج -->
+        <section id="stepGroup" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-white">اختر الفوج:</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4" id="groupsContainer"></div>
+        </section>
+
+        <!-- 5. جدول عرض التلاميذ (سواء من الفوج أو من البحث السريع) -->
+        <section id="stepStudents" class="hidden glass-card p-6 rounded-3xl shadow-xl space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 id="tableTitle" class="text-lg font-bold text-white">قائمة التلاميذ</h3>
+                <span id="studentCountBadge" class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold">0 تلميذ</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-700/60 text-slate-400 text-xs">
+                            <th class="p-4">الكود الخاص</th>
+                            <th class="p-4">الاسم واللقب</th>
+                            <th class="p-4">القسم والفوج</th>
+                            <th class="p-4">حالة الدفع</th>
+                            <th class="p-4 text-center">تعديل / حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody" class="divide-y divide-slate-800/50 text-sm"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- نافذة تعديل بيانات التلميذ -->
+    <div id="editModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card p-8 rounded-3xl max-w-md w-full space-y-5">
+            <h3 class="text-xl font-bold text-white">تعديل بيانات التلميذ</h3>
+            <input type="hidden" id="editDocId">
+            <div class="space-y-3">
+                <label class="text-xs text-slate-400">الاسم</label>
+                <input type="text" id="editFirstName" class="glass-input w-full p-3 rounded-xl text-sm">
+                
+                <label class="text-xs text-slate-400">اللقب</label>
+                <input type="text" id="editLastName" class="glass-input w-full p-3 rounded-xl text-sm">
+                
+                <label class="text-xs text-slate-400">الفوج</label>
+                <select id="editGroup" class="glass-input w-full p-3 rounded-xl text-sm">
+                    <option value="الفوج 01">الفوج 01</option>
+                    <option value="الفوج 02">الفوج 02</option>
+                    <option value="الفوج 03">الفوج 03</option>
+                    <option value="الفوج 04">الفوج 04</option>
+                </select>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="saveStudentEdit()" class="flex-1 bg-blue-600 hover:bg-blue-500 p-3 rounded-xl font-bold text-sm">حفظ التعديلات</button>
+                <button onclick="closeEditModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 p-3 rounded-xl font-bold text-sm">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // ==========================================
+        // ضع إعدادات Firebase الخاصة بمشروعك هنا
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWStKlmjGctFpKDTdM20ZjpEds314xEMY",
+            authDomain: "ecole-pro-90c70.firebaseapp.com",
+            projectId: "ecole-pro-90c70",
+            storageBucket: "ecole-pro-90c70.firebasestorage.app",
+            messagingSenderId: "1083998100049",
+            appId: "1:1083998100049:web:57830391ab0bfa7359b670"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const ADMIN_PASS = "1234"; // كلمة المرور
+        let allStudentsCache = []; // تخزين مؤقت لتسريع البحث الفوري
+
+        function checkPassword() {
+            if (document.getElementById('adminPassword').value === ADMIN_PASS) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                listenToAllStudents();
+            } else {
+                alert("كلمة المرور خاطئة!");
+            }
+        }
+
+        // جلب جميع التلاميذ في الخلفية لتسريع التنقل والبحث الفوري
+        function listenToAllStudents() {
+            db.collection('students').onSnapshot(snap => {
+                allStudentsCache = [];
+                snap.forEach(doc => allStudentsCache.push({ id: doc.id, ...doc.data() }));
+                if (!document.getElementById('stepStudents').classList.contains('hidden')) {
+                    if (document.getElementById('globalSearchInput').value.trim() !== '') {
+                        globalSearch();
+                    } else {
+                        renderFilteredStudents();
+                    }
+                }
+            });
+        }
+
+        let currentSelection = { level: '', branch: '', year: '', group: '' };
+
+        function updateBreadcrumb() {
+            let path = [currentSelection.level, currentSelection.branch, currentSelection.year, currentSelection.group].filter(Boolean);
+            document.getElementById('breadcrumb').innerText = path.length ? "المسار: " + path.join(" ⬅ ") : "الرئيسية / اختر المرحلة التعليمية";
+        }
+
+        function hideAllSteps() {
+            ['stepLevel', 'stepBranch', 'stepYear', 'stepGroup', 'stepStudents'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        }
+
+        function resetNavigation() {
+            document.getElementById('globalSearchInput').value = '';
+            currentSelection = { level: '', branch: '', year: '', group: '' };
+            updateBreadcrumb();
+            hideAllSteps();
+            document.getElementById('stepLevel').classList.remove('hidden');
+        }
+
+        function selectLevel(level) {
+            currentSelection.level = level;
+            updateBreadcrumb();
+            hideAllSteps();
+            if (level === 'ثانوي') {
+                const branches = ['جذع مشترك علوم', 'جذع مشترك آداب', 'علوم تجريبية', 'رياضيات', 'تقني رياضي', 'تسيير واقتصاد', 'لغات أجنبية', 'آداب وفلسفة'];
+                document.getElementById('branchesContainer').innerHTML = branches.map(b => `
+                    <div onclick="selectBranch('${b}')" class="glass-card big-card p-6 rounded-2xl text-center font-bold text-lg text-white">${b}</div>
+                `).join('');
+                document.getElementById('stepBranch').classList.remove('hidden');
+            } else {
+                currentSelection.branch = 'عام';
+                showYears(['السنة الأولى متوسط', 'السنة الثانية متوسط', 'السنة الثالثة متوسط', 'السنة الرابعة متوسط']);
+            }
+        }
+
+        function selectBranch(branch) {
+            currentSelection.branch = branch;
+            updateBreadcrumb();
+            hideAllSteps();
+            showYears(['السنة الأولى ثانوي', 'السنة الثانية ثانوي', 'السنة الثالثة ثانوي']);
+        }
+
+        function showYears(years) {
+            document.getElementById('yearsContainer').innerHTML = years.map(y => `
+                <div onclick="selectYear('${y}')" class="glass-card big-card p-6 rounded-2xl text-center font-bold text-lg text-blue-300">${y}</div>
+            `).join('');
+            document.getElementById('stepYear').classList.remove('hidden');
+        }
+
+        function selectYear(year) {
+            currentSelection.year = year;
+            updateBreadcrumb();
+            hideAllSteps();
+            const groups = ['الفوج 01', 'الفوج 02', 'الفوج 03', 'الفوج 04'];
+            document.getElementById('groupsContainer').innerHTML = groups.map(g => `
+                <div onclick="selectGroup('${g}')" class="glass-card big-card p-6 rounded-2xl text-center font-bold text-lg text-emerald-300">${g}</div>
+            `).join('');
+            document.getElementById('stepGroup').classList.remove('hidden');
+        }
+
+        function selectGroup(group) {
+            currentSelection.group = group;
+            updateBreadcrumb();
+            hideAllSteps();
+            document.getElementById('tableTitle').innerText = `قائمة تلاميذ: ${currentSelection.year} (${group})`;
+            document.getElementById('stepStudents').classList.remove('hidden');
+            renderFilteredStudents();
+        }
+
+        function renderFilteredStudents() {
+            const list = allStudentsCache.filter(s => 
+                s.level === currentSelection.level &&
+                s.branch === currentSelection.branch &&
+                s.year === currentSelection.year &&
+                s.group === currentSelection.group
+            );
+            populateTable(list);
+        }
+
+        // البحث السريع الشامل بالاسم أو اللقب أو الكود الخاص
+        function globalSearch() {
+            const q = document.getElementById('globalSearchInput').value.trim().toLowerCase();
+            if (!q) {
+                resetNavigation();
+                return;
+            }
+            hideAllSteps();
+            document.getElementById('stepStudents').classList.remove('hidden');
+            document.getElementById('tableTitle').innerText = `نتائج البحث السريع عن: "${q}"`;
+
+            const results = allStudentsCache.filter(s => 
+                (s.fullName && s.fullName.toLowerCase().includes(q)) ||
+                (s.studentCode && s.studentCode.toLowerCase().includes(q))
+            );
+            populateTable(results);
+        }
+
+        function populateTable(students) {
+            const tbody = document.getElementById('studentsTableBody');
+            document.getElementById('studentCountBadge').innerText = `${students.length} تلميذ`;
+            tbody.innerHTML = '';
+
+            if (students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">لا توجد نتائج مطابقة.</td></tr>`;
+                return;
+            }
+
+            students.forEach(s => {
+                const paidBadge = s.isPaid
+                    ? `<span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><i class="fa-solid fa-check ml-1"></i> مخلص الشهر</span>`
+                    : `<span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20"><i class="fa-solid fa-xmark ml-1"></i> لم يُخلص</span>`;
+
+                tbody.insertAdjacentHTML('beforeend', `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="p-4 font-mono text-blue-400 font-bold">${s.studentCode}</td>
+                        <td class="p-4 font-bold text-white">${s.fullName}</td>
+                        <td class="p-4 text-slate-300 text-xs">${s.year} - ${s.group}</td>
+                        <td class="p-4">${paidBadge}</td>
+                        <td class="p-4 text-center space-x-2 space-x-reverse">
+                            <button onclick="openEditModal('${s.id}', '${s.firstName}', '${s.lastName}', '${s.group}')" class="p-2 rounded-xl bg-amber-500/10 text-amber-400 hover:bg-amber-500/20" title="تعديل">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="deleteStudent('${s.id}')" class="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20" title="حذف">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        // نافذة التعديل
+        function openEditModal(id, first, last, group) {
+            document.getElementById('editDocId').value = id;
+            document.getElementById('editFirstName').value = first;
+            document.getElementById('editLastName').value = last;
+            document.getElementById('editGroup').value = group;
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        function saveStudentEdit() {
+            const id = document.getElementById('editDocId').value;
+            const firstName = document.getElementById('editFirstName').value.trim();
+            const lastName = document.getElementById('editLastName').value.trim();
+            const group = document.getElementById('editGroup').value;
+
+            if (!firstName || !lastName) { alert("الاسم واللقب مطلوبان!"); return; }
+
+            db.collection('students').doc(id).update({
+                firstName,
+                lastName,
+                fullName: `${firstName} ${lastName}`,
+                group
+            }).then(() => closeEditModal());
+        }
+
+        function deleteStudent(id) {
+            if (confirm("هل أنت متأكد من حذف هذا التلميذ نهائياً؟")) {
+                db.collection('students').doc(id).delete();
+            }
+        }
+    </script>
+</body>
+</html>
