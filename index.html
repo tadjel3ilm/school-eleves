@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سجل وقوائم التلاميذ - مدرسة الدعم</title>
+    <title>سجل التلاميذ والغيابات - مدرسة الدعم</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
             <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-3xl">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <h2 class="text-2xl font-black text-white">سجل التلاميذ</h2>
+            <h2 class="text-2xl font-black text-white">سجل التلاميذ والغيابات</h2>
             <p class="text-sm text-slate-400">أدخل كلمة المرور للوصول إلى القوائم</p>
             <input type="password" id="adminPassword" placeholder="كلمة المرور..." class="glass-input w-full p-4 rounded-2xl text-center text-lg">
             <button onclick="checkPassword()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 font-bold p-4 rounded-2xl text-white shadow-lg transition">
@@ -36,46 +36,74 @@
     <!-- المحتوى الرئيسي -->
     <div id="mainApp" class="max-w-7xl mx-auto space-y-8 hidden">
         
-        <!-- الهيدر وشريط البحث الشامل السريع -->
+        <!-- الهيدر وشريط التنقل (زر الرجوع للخلف + العودة للبداية) -->
         <header class="glass-card p-6 rounded-3xl space-y-6 shadow-2xl">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-4">
                     <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-2xl shadow-lg">📚</div>
                     <div>
                         <h1 class="text-2xl font-black text-white">سجل التلاميذ المنظم</h1>
-                        <p id="breadcrumb" class="text-sm text-blue-400 font-semibold">الرئيسية / اختر المرحلة التعليمية</p>
+                        <p id="breadcrumb" class="text-sm text-blue-400 font-semibold">الرئيسية / اختر القسم المطلوب</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
+                    <!-- زر الرجوع خطوة للخلف -->
+                    <button id="backStepBtn" onclick="goBackOneStep()" class="hidden px-4 py-2.5 rounded-xl bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-600/30 text-sm font-bold transition">
+                        <i class="fa-solid fa-arrow-right ml-1"></i> رجوع للخلف
+                    </button>
+                    <!-- زر العودة للبداية -->
                     <button onclick="resetNavigation()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-bold text-slate-200 transition">
                         <i class="fa-solid fa-home ml-1"></i> العودة للبداية
                     </button>
                 </div>
             </div>
 
-            <!-- خانة البحث السريع الشاملة (بالاسم أو اللقب أو الكود الخاص) -->
+            <!-- شريط البحث السريع الشامل -->
             <div class="relative">
                 <i class="fa-solid fa-search absolute right-4 top-4 text-blue-400"></i>
                 <input type="text" id="globalSearchInput" onkeyup="globalSearch()" placeholder="بحث سريع في كل المدرسة: اكتب اسم التلميذ، لقبه، أو رقمه الخاص (ST-XXXX)..." class="glass-input w-full pr-12 pl-4 py-3.5 rounded-2xl text-sm">
             </div>
         </header>
 
-        <!-- 1. الخانتان الكبيرتان (متوسط / ثانوي) -->
-        <section id="stepLevel" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div onclick="selectLevel('متوسط')" class="glass-card big-card p-12 rounded-3xl text-center space-y-4 border-2 border-transparent">
-                <div class="w-24 h-24 mx-auto rounded-3xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-5xl">
-                    <i class="fa-solid fa-book-open-reader"></i>
+        <!-- 1. البطاقات الثلاث الكبيرة (سجل الغيابات في الأول + متوسط + ثانوي) -->
+        <section id="stepLevel" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- البطاقة الأولى: سجل الغيابات -->
+            <div onclick="startAbsenceMode()" class="glass-card big-card p-10 rounded-3xl text-center space-y-4 border-2 border-rose-500/20 hover:border-rose-500">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-4xl">
+                    <i class="fa-solid fa-clipboard-user"></i>
                 </div>
-                <h2 class="text-3xl font-black text-white">التعليم المتوسط</h2>
-                <p class="text-slate-400">تصفح السنوات والأفواج وقوائم الدفع للتعليم المتوسط</p>
+                <h2 class="text-2xl font-black text-white">سجل الغيابات</h2>
+                <p class="text-sm text-slate-400">عرض ومتابعة التلاميذ الغائبين حسب المرحلة والفوج</p>
             </div>
 
-            <div onclick="selectLevel('ثانوي')" class="glass-card big-card p-12 rounded-3xl text-center space-y-4 border-2 border-transparent">
-                <div class="w-24 h-24 mx-auto rounded-3xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-5xl">
+            <!-- البطاقة الثانية: التعليم المتوسط -->
+            <div onclick="startStudentMode('متوسط')" class="glass-card big-card p-10 rounded-3xl text-center space-y-4 border-2 border-transparent">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-4xl">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                </div>
+                <h2 class="text-2xl font-black text-white">التعليم المتوسط</h2>
+                <p class="text-sm text-slate-400">تصفح السنوات والأفواج وقوائم الدفع للتعليم المتوسط</p>
+            </div>
+
+            <!-- البطاقة الثالثة: التعليم الثانوي -->
+            <div onclick="startStudentMode('ثانوي')" class="glass-card big-card p-10 rounded-3xl text-center space-y-4 border-2 border-transparent">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-4xl">
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
-                <h2 class="text-3xl font-black text-white">التعليم الثانوي</h2>
-                <p class="text-slate-400">تصفح الشعب، السنوات، والأفواج للتعليم الثانوي</p>
+                <h2 class="text-2xl font-black text-white">التعليم الثانوي</h2>
+                <p class="text-sm text-slate-400">تصفح الشعب، السنوات، والأفواج للتعليم الثانوي</p>
+            </div>
+        </section>
+
+        <!-- خطوة اختيار المرحلة داخل سجل الغيابات -->
+        <section id="stepAbsenceLevel" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div onclick="selectAbsenceLevel('متوسط')" class="glass-card big-card p-10 rounded-3xl text-center space-y-3">
+                <h2 class="text-2xl font-black text-teal-400">غيابات التعليم المتوسط</h2>
+                <p class="text-sm text-slate-400">اضغط لاختيار السنة والفوج</p>
+            </div>
+            <div onclick="selectAbsenceLevel('ثانوي')" class="glass-card big-card p-10 rounded-3xl text-center space-y-3">
+                <h2 class="text-2xl font-black text-blue-400">غيابات التعليم الثانوي</h2>
+                <p class="text-sm text-slate-400">اضغط لاختيار الشعبة والسنة والفوج</p>
             </div>
         </section>
 
@@ -97,11 +125,14 @@
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4" id="groupsContainer"></div>
         </section>
 
-        <!-- 5. جدول عرض التلاميذ (سواء من الفوج أو من البحث السريع) -->
+        <!-- 5. جدول عرض التلاميذ -->
         <section id="stepStudents" class="hidden glass-card p-6 rounded-3xl shadow-xl space-y-6">
-            <div class="flex justify-between items-center">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                 <h3 id="tableTitle" class="text-lg font-bold text-white">قائمة التلاميذ</h3>
-                <span id="studentCountBadge" class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold">0 تلميذ</span>
+                <div class="flex items-center gap-2">
+                    <span id="currentMonthBadge" class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-xs font-bold"></span>
+                    <span id="studentCountBadge" class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold">0 تلميذ</span>
+                </div>
             </div>
 
             <div class="overflow-x-auto">
@@ -111,11 +142,34 @@
                             <th class="p-4">الكود الخاص</th>
                             <th class="p-4">الاسم واللقب</th>
                             <th class="p-4">القسم والفوج</th>
-                            <th class="p-4">حالة الدفع</th>
+                            <th class="p-4">حالة الدفع (الشهر الحالي)</th>
                             <th class="p-4 text-center">تعديل / حذف</th>
                         </tr>
                     </thead>
                     <tbody id="studentsTableBody" class="divide-y divide-slate-800/50 text-sm"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 6. جدول عرض سجل الغيابات للفوج -->
+        <section id="stepAbsencesTable" class="hidden glass-card p-6 rounded-3xl shadow-xl space-y-6 border-t-2 border-rose-500/40">
+            <div class="flex justify-between items-center">
+                <h3 id="absenceTableTitle" class="text-lg font-bold text-rose-400">سجل الغيابات</h3>
+                <span id="absenceCountBadge" class="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-bold">0 غياب</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-700/60 text-slate-400 text-xs">
+                            <th class="p-4">الكود</th>
+                            <th class="p-4">اسم ولقب التلميذ</th>
+                            <th class="p-4">تاريخ الغياب</th>
+                            <th class="p-4">الملاحظة</th>
+                            <th class="p-4 text-center">حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody id="absencesTableBody" class="divide-y divide-slate-800/50 text-sm"></tbody>
                 </table>
             </div>
         </section>
@@ -130,10 +184,8 @@
             <div class="space-y-3">
                 <label class="text-xs text-slate-400">الاسم</label>
                 <input type="text" id="editFirstName" class="glass-input w-full p-3 rounded-xl text-sm">
-                
                 <label class="text-xs text-slate-400">اللقب</label>
                 <input type="text" id="editLastName" class="glass-input w-full p-3 rounded-xl text-sm">
-                
                 <label class="text-xs text-slate-400">الفوج</label>
                 <select id="editGroup" class="glass-input w-full p-3 rounded-xl text-sm">
                     <option value="الفوج 01">الفوج 01</option>
@@ -144,7 +196,7 @@
             </div>
             <div class="flex gap-3 pt-2">
                 <button onclick="saveStudentEdit()" class="flex-1 bg-blue-600 hover:bg-blue-500 p-3 rounded-xl font-bold text-sm">حفظ التعديلات</button>
-                <button onclick="closeEditModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 p-3 rounded-xl font-bold text-sm">إلغاء</button>
+                <button onclick="closeEditModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 p-3 rounded-xl font-bold text-sm">إغلاق</button>
             </div>
         </div>
     </div>
@@ -170,55 +222,116 @@
         const db = firebase.firestore();
 
         const ADMIN_PASS = "1234"; // كلمة المرور
-        let allStudentsCache = []; // تخزين مؤقت لتسريع البحث الفوري
+        let allStudentsCache = [];
+        let allAbsencesCache = [];
+
+        // تحديد الشهر والسنة الحالية تلقائياً لتجديد حالة الدفع كل شهر
+        function getCurrentAcademicMonthKey() {
+            const monthsAr = ["جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان", "جويلية", "أوت", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+            const now = new Date();
+            return `${monthsAr[now.getMonth()]} ${now.getFullYear()}`;
+        }
+
+        const CURRENT_MONTH_KEY = getCurrentAcademicMonthKey();
+        document.getElementById('currentMonthBadge').innerText = `الشهر الحالي: ${CURRENT_MONTH_KEY}`;
 
         function checkPassword() {
             if (document.getElementById('adminPassword').value === ADMIN_PASS) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
-                listenToAllStudents();
+                listenToData();
             } else {
                 alert("كلمة المرور خاطئة!");
             }
         }
 
-        // جلب جميع التلاميذ في الخلفية لتسريع التنقل والبحث الفوري
-        function listenToAllStudents() {
+        function listenToData() {
             db.collection('students').onSnapshot(snap => {
                 allStudentsCache = [];
                 snap.forEach(doc => allStudentsCache.push({ id: doc.id, ...doc.data() }));
                 if (!document.getElementById('stepStudents').classList.contains('hidden')) {
-                    if (document.getElementById('globalSearchInput').value.trim() !== '') {
-                        globalSearch();
-                    } else {
-                        renderFilteredStudents();
-                    }
+                    document.getElementById('globalSearchInput').value.trim() ? globalSearch() : renderFilteredStudents();
+                }
+            });
+
+            db.collection('absences').orderBy('timestamp', 'desc').onSnapshot(snap => {
+                allAbsencesCache = [];
+                snap.forEach(doc => allAbsencesCache.push({ id: doc.id, ...doc.data() }));
+                if (!document.getElementById('stepAbsencesTable').classList.contains('hidden')) {
+                    renderFilteredAbsences();
                 }
             });
         }
 
-        let currentSelection = { level: '', branch: '', year: '', group: '' };
+        // نظام التنقل وسجل الخطوات للزر "رجوع للخلف"
+        let navHistory = [];
+        let currentSelection = { mode: 'students', level: '', branch: '', year: '', group: '' };
 
-        function updateBreadcrumb() {
-            let path = [currentSelection.level, currentSelection.branch, currentSelection.year, currentSelection.group].filter(Boolean);
-            document.getElementById('breadcrumb').innerText = path.length ? "المسار: " + path.join(" ⬅ ") : "الرئيسية / اختر المرحلة التعليمية";
+        function pushStep(stepId, label) {
+            navHistory.push({ stepId, selection: { ...currentSelection } });
+            updateNavUI();
+        }
+
+        function updateNavUI() {
+            const backBtn = document.getElementById('backStepBtn');
+            navHistory.length > 0 ? backBtn.classList.remove('hidden') : backBtn.classList.add('hidden');
+
+            let prefix = currentSelection.mode === 'absences' ? 'سجل الغيابات' : 'سجل التلاميذ';
+            let path = [prefix, currentSelection.level, currentSelection.branch !== 'عام' ? currentSelection.branch : '', currentSelection.year, currentSelection.group].filter(Boolean);
+            document.getElementById('breadcrumb').innerText = navHistory.length ? path.join(" ⬅ ") : "الرئيسية / اختر القسم المطلوب";
+        }
+
+        function goBackOneStep() {
+            if (navHistory.length === 0) return;
+            navHistory.pop(); // إزالة الخطوة الحالية
+            hideAllSteps();
+
+            if (navHistory.length === 0) {
+                resetNavigation();
+                return;
+            }
+
+            const previous = navHistory[navHistory.length - 1];
+            currentSelection = { ...previous.selection };
+            document.getElementById(previous.stepId).classList.remove('hidden');
+            updateNavUI();
         }
 
         function hideAllSteps() {
-            ['stepLevel', 'stepBranch', 'stepYear', 'stepGroup', 'stepStudents'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['stepLevel', 'stepAbsenceLevel', 'stepBranch', 'stepYear', 'stepGroup', 'stepStudents', 'stepAbsencesTable'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
         }
 
         function resetNavigation() {
             document.getElementById('globalSearchInput').value = '';
-            currentSelection = { level: '', branch: '', year: '', group: '' };
-            updateBreadcrumb();
+            navHistory = [];
+            currentSelection = { mode: 'students', level: '', branch: '', year: '', group: '' };
             hideAllSteps();
             document.getElementById('stepLevel').classList.remove('hidden');
+            updateNavUI();
         }
 
-        function selectLevel(level) {
+        // بدء وضع سجل الغيابات
+        function startAbsenceMode() {
+            currentSelection.mode = 'absences';
+            hideAllSteps();
+            document.getElementById('stepAbsenceLevel').classList.remove('hidden');
+            pushStep('stepAbsenceLevel');
+        }
+
+        function selectAbsenceLevel(level) {
+            proceedWithLevel(level);
+        }
+
+        // بدء وضع سجل التلاميذ
+        function startStudentMode(level) {
+            currentSelection.mode = 'students';
+            proceedWithLevel(level);
+        }
+
+        function proceedWithLevel(level) {
             currentSelection.level = level;
-            updateBreadcrumb();
             hideAllSteps();
             if (level === 'ثانوي') {
                 const branches = ['جذع مشترك علوم', 'جذع مشترك آداب', 'علوم تجريبية', 'رياضيات', 'تقني رياضي', 'تسيير واقتصاد', 'لغات أجنبية', 'آداب وفلسفة'];
@@ -226,6 +339,7 @@
                     <div onclick="selectBranch('${b}')" class="glass-card big-card p-6 rounded-2xl text-center font-bold text-lg text-white">${b}</div>
                 `).join('');
                 document.getElementById('stepBranch').classList.remove('hidden');
+                pushStep('stepBranch');
             } else {
                 currentSelection.branch = 'عام';
                 showYears(['السنة الأولى متوسط', 'السنة الثانية متوسط', 'السنة الثالثة متوسط', 'السنة الرابعة متوسط']);
@@ -234,7 +348,6 @@
 
         function selectBranch(branch) {
             currentSelection.branch = branch;
-            updateBreadcrumb();
             hideAllSteps();
             showYears(['السنة الأولى ثانوي', 'السنة الثانية ثانوي', 'السنة الثالثة ثانوي']);
         }
@@ -244,28 +357,38 @@
                 <div onclick="selectYear('${y}')" class="glass-card big-card p-6 rounded-2xl text-center font-bold text-lg text-blue-300">${y}</div>
             `).join('');
             document.getElementById('stepYear').classList.remove('hidden');
+            pushStep('stepYear');
         }
 
         function selectYear(year) {
             currentSelection.year = year;
-            updateBreadcrumb();
             hideAllSteps();
             const groups = ['الفوج 01', 'الفوج 02', 'الفوج 03', 'الفوج 04'];
             document.getElementById('groupsContainer').innerHTML = groups.map(g => `
                 <div onclick="selectGroup('${g}')" class="glass-card big-card p-6 rounded-2xl text-center font-bold text-lg text-emerald-300">${g}</div>
             `).join('');
             document.getElementById('stepGroup').classList.remove('hidden');
+            pushStep('stepGroup');
         }
 
         function selectGroup(group) {
             currentSelection.group = group;
-            updateBreadcrumb();
             hideAllSteps();
-            document.getElementById('tableTitle').innerText = `قائمة تلاميذ: ${currentSelection.year} (${group})`;
-            document.getElementById('stepStudents').classList.remove('hidden');
-            renderFilteredStudents();
+
+            if (currentSelection.mode === 'absences') {
+                document.getElementById('absenceTableTitle').innerText = `غيابات: ${currentSelection.year} (${group})`;
+                document.getElementById('stepAbsencesTable').classList.remove('hidden');
+                pushStep('stepAbsencesTable');
+                renderFilteredAbsences();
+            } else {
+                document.getElementById('tableTitle').innerText = `قائمة تلاميذ: ${currentSelection.year} (${group})`;
+                document.getElementById('stepStudents').classList.remove('hidden');
+                pushStep('stepStudents');
+                renderFilteredStudents();
+            }
         }
 
+        // عرض التلاميذ مع التحقق الذكي من دفع الشهر الحالي
         function renderFilteredStudents() {
             const list = allStudentsCache.filter(s => 
                 s.level === currentSelection.level &&
@@ -273,16 +396,12 @@
                 s.year === currentSelection.year &&
                 s.group === currentSelection.group
             );
-            populateTable(list);
+            populateStudentsTable(list);
         }
 
-        // البحث السريع الشامل بالاسم أو اللقب أو الكود الخاص
         function globalSearch() {
             const q = document.getElementById('globalSearchInput').value.trim().toLowerCase();
-            if (!q) {
-                resetNavigation();
-                return;
-            }
+            if (!q) { resetNavigation(); return; }
             hideAllSteps();
             document.getElementById('stepStudents').classList.remove('hidden');
             document.getElementById('tableTitle').innerText = `نتائج البحث السريع عن: "${q}"`;
@@ -291,10 +410,10 @@
                 (s.fullName && s.fullName.toLowerCase().includes(q)) ||
                 (s.studentCode && s.studentCode.toLowerCase().includes(q))
             );
-            populateTable(results);
+            populateStudentsTable(results);
         }
 
-        function populateTable(students) {
+        function populateStudentsTable(students) {
             const tbody = document.getElementById('studentsTableBody');
             document.getElementById('studentCountBadge').innerText = `${students.length} تلميذ`;
             tbody.innerHTML = '';
@@ -305,9 +424,13 @@
             }
 
             students.forEach(s => {
-                const paidBadge = s.isPaid
-                    ? `<span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><i class="fa-solid fa-check ml-1"></i> مخلص الشهر</span>`
-                    : `<span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20"><i class="fa-solid fa-xmark ml-1"></i> لم يُخلص</span>`;
+                // التحقق هل الشهر الحالي موجود في قائمة الأشهر المدفوعة للتلميذ
+                const paidList = Array.isArray(s.paidMonths) ? s.paidMonths : [];
+                const isPaidThisMonth = paidList.includes(CURRENT_MONTH_KEY) || s.lastPaidMonth === CURRENT_MONTH_KEY;
+
+                const paidBadge = isPaidThisMonth
+                    ? `<span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><i class="fa-solid fa-check ml-1"></i> مخلص (${CURRENT_MONTH_KEY})</span>`
+                    : `<span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20"><i class="fa-solid fa-xmark ml-1"></i> غير مخلص (${CURRENT_MONTH_KEY})</span>`;
 
                 tbody.insertAdjacentHTML('beforeend', `
                     <tr class="hover:bg-slate-800/40 transition">
@@ -328,7 +451,42 @@
             });
         }
 
-        // نافذة التعديل
+        // عرض سجل الغيابات المفلتر حسب الفوج
+        function renderFilteredAbsences() {
+            const list = allAbsencesCache.filter(a => 
+                a.level === currentSelection.level &&
+                (a.branch || 'عام') === currentSelection.branch &&
+                a.year === currentSelection.year &&
+                a.group === currentSelection.group
+            );
+
+            const tbody = document.getElementById('absencesTableBody');
+            document.getElementById('absenceCountBadge').innerText = `${list.length} غياب`;
+            tbody.innerHTML = '';
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">لا توجد غيابات مسجلة لهذا الفوج.</td></tr>`;
+                return;
+            }
+
+            list.forEach(a => {
+                tbody.insertAdjacentHTML('beforeend', `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="p-4 font-mono text-rose-400 font-bold">${a.studentCode}</td>
+                        <td class="p-4 font-bold text-white">${a.studentName}</td>
+                        <td class="p-4 text-slate-300">${a.date}</td>
+                        <td class="p-4 text-slate-400 text-xs">${a.note || '-'}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="db.collection('absences').doc('${a.id}').delete()" class="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20" title="حذف الغياب">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        // تعديل وحذف التلاميذ
         function openEditModal(id, first, last, group) {
             document.getElementById('editDocId').value = id;
             document.getElementById('editFirstName').value = first;
@@ -337,9 +495,7 @@
             document.getElementById('editModal').classList.remove('hidden');
         }
 
-        function closeEditModal() {
-            document.getElementById('editModal').classList.add('hidden');
-        }
+        function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
         function saveStudentEdit() {
             const id = document.getElementById('editDocId').value;
@@ -350,10 +506,7 @@
             if (!firstName || !lastName) { alert("الاسم واللقب مطلوبان!"); return; }
 
             db.collection('students').doc(id).update({
-                firstName,
-                lastName,
-                fullName: `${firstName} ${lastName}`,
-                group
+                firstName, lastName, fullName: `${firstName} ${lastName}`, group
             }).then(() => closeEditModal());
         }
 
